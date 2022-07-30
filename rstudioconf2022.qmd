@@ -1,0 +1,123 @@
+---
+title: "rstudio::conf 2022 recap"
+author: "Stephen Turner"
+date: "July 25-28, 2022"
+link-external-newwindow: true
+format: 
+  revealjs:
+    # chalkboard: true
+    self-contained: true
+    code-line-numbers: false
+    transition: fade
+    height: 900
+    width: 1600
+    logo: images/sigsci-logo.png
+    footer: "[strnr.quarto.pub/rstudioconf-2022-recap](https://strnr.quarto.pub/rstudioconf-2022-recap)"
+    slide-number: c/t
+    mermaid-format: png
+editor: visual
+execute: 
+  eval: true
+  echo: true
+---
+
+## Highlights
+
+-   RStudio PBC is now Posit
+-   Tidymodels for ML training, evaluation, and deployment
+-   Quarto
+-   Shiny for Python
+-   Serverless Shiny
+-   Misc
+
+## RStudio PBC is now Posit
+
+![](images/posit.jpg){fig-align="center"}
+
+## RStudio PBC is now Posit
+
+-   2020: RStudio became a Public Benefit Corporation, recognized as a Certified B Corporation ([blog post](https://www.rstudio.com/blog/rstudio-pbc/)).
+
+-   Long-term focus on sustainable open-source software development for data science.
+
+    -   What will they keynote at rstudio::conf 2122 look like?
+
+    -   RStudio is becoming more multilingual (see also Quarto)
+
+    -   R, Python, Julia, etc. may be long-dead languages.
+
+-   2022: RStudio becomes Posit
+
+    -   Blog post: [rstudio.com/blog/rstudio-is-becoming-posit](https://www.rstudio.com/blog/rstudio-is-becoming-posit/)
+
+    -   More info: <https://posit.co/>
+
+## We ~~don't~~ talk about Quarto
+
+See Alison Hill's [blog post](https://www.apreshill.com/blog/2022-04-we-dont-talk-about-quarto/) from April
+
+[![](images/quarto-bruno.jpg)](https://www.apreshill.com/blog/2022-04-we-dont-talk-about-quarto/)
+
+## What is Quarto?
+
+-   Quarto is an open-source scientific and technical publishing system built on Pandoc.
+-   `quarto` is a language agnostic command line interface (CLI).
+-   "Batteries included" -- RStudio now comes with the `quarto` CLI installed.
+-   <https://quarto.org/>
+
+. . .
+
+``` bash
+sturner$ quarto --help
+```
+
+. . .
+
+``` bash
+  Usage:   quarto
+  Version: 1.0.36
+
+  Options:
+    -h, --help     - Show this help.                            
+    -V, --version  - Show the version number for this program.  
+
+  Commands:
+    render          [input] [args...]   - Render input file(s) to various document types.            
+    preview         [file] [args...]    - Render and preview a document or website project.          
+    serve           [input]             - Serve a Shiny interactive document.                        
+    create-project  [dir]               - Create a project for rendering multiple documents          
+    convert         <input>             - Convert documents to alternate representations.            
+    pandoc          [args...]           - Run the version of Pandoc embedded within Quarto.          
+    run             [script] [args...]  - Run a TypeScript, R, Python, or Lua script.                
+    install         <type> [target]     - Installs an extension or global dependency.                
+    publish         [provider] [path]   - Publish a document or project. Available providers include:
+    check           [target]            - Verify correct functioning of Quarto installation.         
+```
+
+## What is Quarto?
+
+```{mermaid}
+%%| fig-width: 12
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '10px'}}}%%
+graph LR
+  Q(.qmd) --> K(knitr)
+  Q --> J(Jupyter)
+  J & K --> M(.md)
+  M --> P(Pandoc)
+  P -- Report --> R(.pdf <br/> .docx)
+  P -- Presentation --> RJS(revealjs <br/> Beamer <br/> Powerpoint)
+  P -- Project --> PRJ(Books <br/> Websites)
+
+```
+
+## What is Quarto?
+
+-   A `.qmd` is a plain text file
+-   Regular Rmarkdown mostly "just works"
+-   Chunk options are YAML using the hashpipe (e.g., `#| echo: false`)
+-   One document, many formats
+-   This slideshow:
+    -   Rendered: \[strnr.quarto.pub/rstudioconf-2022-recap\](https://strnr.quarto.pub/rstudioconf-2022-recap)
+
+    -   Source:
+-   BDSR:
