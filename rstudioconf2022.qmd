@@ -17,7 +17,7 @@ format:
     mermaid-format: png
 editor: visual
 execute: 
-  eval: true
+  eval: false
   echo: true
 ---
 
@@ -26,9 +26,10 @@ execute:
 -   RStudio PBC is now Posit
 -   Tidymodels for ML training, evaluation, and deployment
 -   Quarto
--   Shiny for Python
--   Serverless Shiny
--   Misc
+-   Shiny for Python & Serverless Shiny
+-   Miscellaneous
+
+# RStudio is now Posit
 
 ## RStudio PBC is now Posit
 
@@ -51,6 +52,205 @@ execute:
     -   Blog post: [rstudio.com/blog/rstudio-is-becoming-posit](https://www.rstudio.com/blog/rstudio-is-becoming-posit/)
 
     -   More info: <https://posit.co/>
+
+# Tidymodels
+
+## Tidymodels
+
+-   Collection of packages for machine learning using tidyverse principles
+-   caret is no longer being developed
+-   Tidymodels is ready for production. CRAN 1.0.x releases
+-   *Extremely* well documented. See [tidymodels.org](https://www.tidymodels.org/)
+-   Workshop materials: [workshops.tidymodels.org](https://workshops.tidymodels.org/)
+
+## Tidymodels: simple linear regression
+
+Compare base R versus tidymodels for a simple linear regression:
+
+::: columns
+::: {.column width="50%"}
+Using base `stats::lm()`:
+
+```{r}
+lmfit <- lm(mpg~., data=mtcars)
+```
+:::
+
+::: {.column width="50%"}
+Using tidymodels workflows + parsnip:
+
+```{r}
+library(tidymodels)
+tmfit <- 
+  workflow() %>% 
+  add_model(linear_reg()) %>% 
+  add_formula(mpg~.) %>% 
+  fit(data=mtcars)
+```
+:::
+:::
+
+## Tidymodels: boosted trees
+
+::: columns
+::: {.column width="50%"}
+Set up workflow:
+
+```{r}
+#| code-line-numbers: "|1-9|11-16|18-22|1-22|1-9|21"
+# Boosted tree spec 
+xgb_spec <-
+  boost_tree(
+    trees = 500, min_n = tune(), 
+    stop_iter = tune(), tree_depth = tune(),
+    learn_rate = tune(), loss_reduction = tune()
+  ) %>%
+  set_mode("classification") %>% 
+  set_engine("xgboost")
+
+# Boosted tree recipe
+xgb_rec <- 
+  recipe(on_goal ~ ., data = nhl_train) %>% 
+  step_lencode_mixed(player, outcome=vars(on_goal)) %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  step_zv(all_predictors())
+
+# Boosted tree workflow
+xgb_wflow <- 
+  workflow() %>% 
+  add_model(xgb_spec) %>% 
+  add_recipe(xgb_rec)
+
+```
+:::
+
+::: {.column width="50%"}
+Find optimal parameters with cross-validation using a Latin hypercube grid search:
+
+```{r}
+grid <- 
+  xgb_wflow %>% 
+  extract_parameter_set_dials() %>% 
+  grid_latin_hypercube(size = 25)
+
+xgb_res <- 
+  xgb_wflow %>% 
+  tune_grid(resamples=nhl_val, grid=grid)
+xgb_res
+```
+:::
+:::
+
+## Tidymodels: usemodels
+
+Run this:
+
+```{r}
+usemodels::use_ranger(mpg~., data=mtcars)
+```
+
+. . .
+
+Copied to the clipboard:
+
+```{r}
+#| code-line-numbers: "|1-2|4-7|9-12|14-18"
+ranger_recipe <- 
+  recipe(formula = mpg ~ ., data = mtcars, clipboard = TRUE) 
+
+ranger_spec <- 
+  rand_forest(mtry = tune(), min_n = tune(), trees = 1000) %>% 
+  set_mode("regression") %>% 
+  set_engine("ranger") 
+
+ranger_workflow <- 
+  workflow() %>% 
+  add_recipe(ranger_recipe) %>% 
+  add_model(ranger_spec) 
+
+set.seed(38757)
+ranger_tune <-
+  tune_grid(ranger_workflow, 
+            resamples = stop("add your rsample object"), 
+            grid = stop("add number of candidate points"))
+
+```
+
+## Tidymodels: usemodels
+
+Run this:
+
+```{r}
+usemodels::use_glmnet(mpg~., data=mtcars)
+```
+
+. . .
+
+Copied to the clipboard:
+
+```{r}
+glmnet_recipe <- 
+  recipe(formula = mpg ~ ., data = mtcars) %>% 
+  step_zv(all_predictors()) %>% 
+  step_normalize(all_numeric_predictors()) 
+
+glmnet_spec <- 
+  linear_reg(penalty = tune(), mixture = tune()) %>% 
+  set_mode("regression") %>% 
+  set_engine("glmnet") 
+
+glmnet_workflow <- 
+  workflow() %>% 
+  add_recipe(glmnet_recipe) %>% 
+  add_model(glmnet_spec) 
+
+glmnet_grid <- tidyr::crossing(penalty = 10^seq(-6, -1, length.out = 20), 
+                               mixture = c(0.05, 0.2, 0.4, 0.6, 0.8, 1)) 
+
+glmnet_tune <- 
+  tune_grid(glmnet_workflow, 
+            resamples = stop("add your rsample object"), 
+            grid = glmnet_grid) 
+```
+
+## Tidymodels: usemodels
+
+Run this:
+
+```{r}
+usemodels::use_xgboost(mpg~., data=mtcars)
+```
+
+. . .
+
+Copied to the clipboard:
+
+```{r}
+xgboost_recipe <- 
+  recipe(formula = mpg ~ ., data = mtcars, clipboard = TRUE) %>% 
+  step_zv(all_predictors()) 
+
+xgboost_spec <- 
+  boost_tree(trees = tune(), min_n = tune(), 
+             tree_depth = tune(), learn_rate = tune(), 
+             loss_reduction = tune(), sample_size = tune()) %>% 
+  set_mode("regression") %>% 
+  set_engine("xgboost") 
+
+xgboost_workflow <- 
+  workflow() %>% 
+  add_recipe(xgboost_recipe) %>% 
+  add_model(xgboost_spec) 
+
+set.seed(9270)
+xgboost_tune <-
+  tune_grid(xgboost_workflow, 
+            resamples = stop("add your rsample object"), 
+            grid = stop("add number of candidate points"))
+
+```
+
+# Quarto 
 
 ## We ~~don't~~ talk about Quarto
 
@@ -117,7 +317,89 @@ graph LR
 -   Chunk options are YAML using the hashpipe (e.g., `#| echo: false`)
 -   One document, many formats
 -   This slideshow:
-    -   Rendered: \[strnr.quarto.pub/rstudioconf-2022-recap\](https://strnr.quarto.pub/rstudioconf-2022-recap)
+    -   Rendered: [strnr.quarto.pub/rstudioconf-2022-recap](https://strnr.quarto.pub/rstudioconf-2022-recap)
+    -   Source: [github.com/stephenturner/rstudioconf2022](https://github.com/stephenturner/rstudioconf2022)
+    -   Demo: chalkboard, outline, annotations
+-   *BDSR* Book (outline): [bdsr.netlify.app](https://bdsr.netlify.app/)
 
-    -   Source:
--   BDSR:
+# Shiny for Python
+
+## Shiny for Python
+
+-   Similar conceptually to Shiny for R, and designed to feel like idiomatic Python
+
+-   Documentation: <https://shiny.rstudio.com/py>.
+
+-   Deployment options include shinyapps.io, RStudio Connect, Shiny Server Open Source, and on a static server.
+
+## Shiny for Python
+
+Minimal example:
+
+``` py
+from shiny import App, render, ui
+app_ui = ui.page_fluid(
+    ui.input_slider("n", "N", 0, 100, 20),
+    ui.output_text_verbatim("txt"),
+)
+def server(input, output, session):
+    @output
+    @render.text
+    def txt():
+        return f"n*2 is {input.n() * 2}"
+app = App(app_ui, server)
+```
+
+## Shinylive: Serverless Shiny
+
+-   Shiny for Python running completely in the browser, no server required
+-   Powered by WebAssembly and Pyodide
+    -   WebAssembly (WASM): binary format for compiled programs that can run in a web browser at near-native speeds. [webassembly.org](https://webassembly.org/)
+    -   Pyodide: Port of CPython to WASM. [pyodide.org](https://pyodide.org/en/stable/)
+-   No installation needed: no shiny, no python.
+-   Easy deployment (any static web hosting service)
+-   Security: runs in browser sandbox
+
+## Shinylive: example
+
+URL: [stephenturner.github.io/shinypy-helloworld](https://stephenturner.github.io/shinypy-helloworld)
+
+Code: [github.com/stephenturner/shinypy-helloworld](https://github.com/stephenturner/shinypy-helloworld){.uri}
+
+``` python
+from shiny import App, render, ui
+
+# Import modules for plot rendering
+import numpy as np
+import matplotlib.pyplot as plt
+
+app_ui = ui.page_fluid(
+    ui.layout_sidebar(
+        ui.panel_sidebar(
+            ui.input_slider("n", "N", 0, 100, 20),
+        ),
+        ui.panel_main(
+            ui.output_plot("plot"),
+        ),
+    ),
+)
+
+
+def server(input, output, session):
+    @output
+    @render.plot(alt="A histogram")
+    def plot():
+        np.random.seed(19680801)
+        x = 100 + 15 * np.random.randn(437)
+
+        fig, ax = plt.subplots()
+        ax.hist(x, input.n(), density=True)
+        return fig
+
+
+app = App(app_ui, server, debug=True)
+```
+
+# Miscellaneous
+
+## GSK talks
