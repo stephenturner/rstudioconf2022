@@ -55,7 +55,7 @@ execute:
 
 # Tidymodels
 
-## Tidymodels
+## Tidymodels: Overview
 
 -   Collection of packages for machine learning using tidyverse principles
 -   caret is no longer being developed
@@ -250,7 +250,109 @@ xgboost_tune <-
 
 ```
 
-# Quarto 
+## Tidymodels + vetiver + plumber = 🔮
+
+-   plumber ([rplumber.io](https://www.rplumber.io/)): Automatically generate HTTP API for R functions.
+-   vetiver ([rstudio.github.io/vetiver-r](https://rstudio.github.io/vetiver-r/)): version, share, deploy, and monitor a trained model.
+
+::: columns
+::: {.column width="50%"}
+
+Model training and deployment. Do this in one R session.
+
+```{r}
+library(tidymodels)
+library(vetiver)
+library(plumber)
+
+# Not the way you'd actually split data - for demo only
+cars_train <- mtcars[1:24,]
+cars_test <- mtcars[25:32,]
+
+# Random forest using C++ implementation
+rf_spec <-
+  rand_forest(trees=1000) %>%
+  set_mode("regression") %>%
+  set_engine("ranger")
+
+# Simple workflow
+rf_wflow <- workflow(mpg~., rf_spec)
+
+# Fit the model
+rf_fit <- fit(rf_wflow, cars_train)
+
+# Create a vetiver model object
+v <- vetiver_model(rf_fit, "mtcars_mpg")
+
+# Create a plumber API
+pr <- pr() %>% vetiver_api(v)
+
+# Run the API server, open at http://127.0.0.1:5678/
+pr_run(pr, port=5678)
+```
+:::
+
+::: {.column width="50%"}
+
+Predict from the model endpoint. Do this in a separate session. 
+
+```{r}
+library(vetiver)
+
+# Use the same IP/port from above
+endpoint <- vetiver_endpoint("http://127.0.0.1:5678/predict")
+
+# same split from above
+cars_test <- mtcars[25:32,]
+
+# Predict from the endpoint (returns a 1-col tibble)
+predict(endpoint, cars_test)
+
+# Stick this onto the original data, plot, etc.
+cbind(cars_test, predict(endpoint, cars_test))
+```
+:::
+:::
+
+## Model workflow
+
+Consider simple preprocessing (e.g., centering/scaling numeric predictors), simple feature engineering (e.g., PCA), followed by vanilla GLM/tree model.
+
+Wrong:
+
+```{mermaid}
+%%| fig-width: 12
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '10px'}}}%%
+graph LR
+  Data --> P[Preprocessing]
+  Predictors --> P
+  P --> S[Split <br/> Training/testing]
+  S --> Modeling
+  subgraph "Model Workflow"
+  Modeling
+  end
+  Modeling --> F[Fitted Model]
+```
+
+. . . 
+
+Tidymodels makes this easy: 
+
+```{mermaid}
+%%| fig-width: 12
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '10px'}}}%%
+graph LR
+  Data --> S[Split <br/> Training/testing]
+  Predictors --> S
+  subgraph "Model Workflow"
+  S --> P[Preprocessing]
+  P --> Modeling
+  end
+  Modeling --> F[Fitted Model]
+```
+
+
+# Quarto
 
 ## We ~~don't~~ talk about Quarto
 
