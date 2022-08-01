@@ -7,12 +7,13 @@ format:
   revealjs:
     chalkboard: true
     # self-contained: true
+    multiplex: true
     code-line-numbers: false
     transition: fade
     height: 900
     width: 1600
     logo: images/sigsci-logo.png
-    footer: "[strnr.quarto.pub/rstudioconf-2022-recap](https://strnr.quarto.pub/rstudioconf-2022-recap)"
+    footer: "[strnr.quarto.pub/rstudioconf2022](https://strnr.quarto.pub/rstudioconf2022)"
     slide-number: c/t
     mermaid-format: png
 editor: visual
@@ -433,10 +434,16 @@ graph LR
 -   Chunk options are YAML using the hashpipe (e.g., `#| echo: false`)
 -   One document, many formats
 -   This slideshow:
-    -   Rendered: [strnr.quarto.pub/rstudioconf-2022-recap](https://strnr.quarto.pub/rstudioconf-2022-recap)
+    -   Rendered: [strnr.quarto.pub/rstudioconf2022](https://strnr.quarto.pub/rstudioconf2022)
     -   Source: [github.com/stephenturner/rstudioconf2022](https://github.com/stephenturner/rstudioconf2022)
-    -   Demo: chalkboard, outline, annotations
--   *BDSR* Book (outline): [bdsr.netlify.app](https://bdsr.netlify.app/)
+    -   Demo:
+        -   Outline (o)
+
+        -   Blackboard (b)
+
+        -   Annotations (c)
+
+        -   [Multiplex](https://quarto.org/docs/presentations/revealjs/presenting.html#multiplex) 🤯
 
 # Shiny for Python
 
@@ -665,5 +672,4 @@ pengins_pred_int %>%
 -   E David Aja (Rstudio): You should be using renv ([rstudio.github.io/renv](https://rstudio.github.io/renv))
 -   Aaron Chafetz (USAID): Digging a Pit of Success for Your Organization: Embracing a R-based ecosystem in the US federal government ([slides](https://speakerdeck.com/achafetz/digging-a-pit-of-success-for-your-organization))
 -   Kamil Zyla (Appsilon): **Rhino: Shiny application framework for enterprise** ([appsilon.github.io/rhino](https://appsilon.github.io/rhino/))
--   Hadley Wickham (RStudio): An introduction to R7 ([rconsortium.github.io/OOP-WG](https://rconsortium.github.io/OOP-WG/))
--   
+-   Hadley Wickham (RStudio): **An introduction to R7** ([rconsortium.github.io/OOP-WG](https://rconsortium.github.io/OOP-WG/))
