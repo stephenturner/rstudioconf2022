@@ -5,8 +5,8 @@ date: "July 25-28, 2022"
 link-external-newwindow: true
 format: 
   revealjs:
-    # chalkboard: true
-    self-contained: true
+    chalkboard: true
+    # self-contained: true
     code-line-numbers: false
     transition: fade
     height: 900
@@ -256,8 +256,7 @@ xgboost_tune <-
 -   vetiver ([rstudio.github.io/vetiver-r](https://rstudio.github.io/vetiver-r/)): version, share, deploy, and monitor a trained model.
 
 ::: columns
-::: {.column width="50%"}
-
+::: {.column width="48%"}
 Model training and deployment. Do this in one R session.
 
 ```{r}
@@ -292,9 +291,11 @@ pr_run(pr, port=5678)
 ```
 :::
 
-::: {.column width="50%"}
+::: {.column width="4%"}
+:::
 
-Predict from the model endpoint. Do this in a separate session. 
+::: {.column width="48%"}
+Predict from the model endpoint. Do this in a separate session.
 
 ```{r}
 library(vetiver)
@@ -316,10 +317,16 @@ cbind(cars_test, predict(endpoint, cars_test))
 
 ## Model workflow
 
-Consider simple preprocessing (e.g., centering/scaling numeric predictors), simple feature engineering (e.g., PCA), followed by vanilla GLM/tree model.
+Consider simple prep-processing (e.g., centering/scaling numeric predictors), simple feature engineering (e.g., PCA), followed by vanilla GLM/tree model.
 
+. . .
+
+::: columns
+::: {.column width="20%"}
 Wrong:
+:::
 
+::: {.column width="80%"}
 ```{mermaid}
 %%| fig-width: 12
 %%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '10px'}}}%%
@@ -333,11 +340,17 @@ graph LR
   end
   Modeling --> F[Fitted Model]
 ```
+:::
+:::
 
-. . . 
+. . .
 
-Tidymodels makes this easy: 
+::: columns
+::: {.column width="20%"}
+Tidymodels makes this easy:
+:::
 
+::: {.column width="80%"}
 ```{mermaid}
 %%| fig-width: 12
 %%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '10px'}}}%%
@@ -350,7 +363,8 @@ graph LR
   end
   Modeling --> F[Fitted Model]
 ```
-
+:::
+:::
 
 # Quarto
 
@@ -504,4 +518,152 @@ app = App(app_ui, server, debug=True)
 
 # Miscellaneous
 
-## GSK talks
+## What's new in knitr
+
+-   Lots of new goodies. See [knitr release notes](https://github.com/yihui/knitr/releases) for details.
+-   Previously you could re-use content of an existing chunk with the `ref.label` option. New `opts.label="prev-chunk"` re-uses a labeled chunk's options (can overwrite in current chunk's options).
+-   New chunk options, `{r, file=c("script-1.R")}` instead of `{r, code=readLines("script.R")}` to use the contents of script.R as the content of this chunk.
+-   Chunk options
+
+::: columns
+::: {.column width="50%"}
+Chunk options can be written *inside* a code chunk after `#|`, e.g.,
+
+    #| echo = FALSE, fig.width = 10,
+    #| fig.cap = "This is a long caption."
+:::
+
+::: {.column width="50%"}
+Or using YAML (The `knitr::convert_chunk_header()` can automatically convert old chunk options to the new syntax (requires knitr 1.40).
+
+    #| echo: false
+    #| fig.width: 10
+:::
+:::
+
+## Tidyclust
+
+-   Emil Hvitfeldt (RStudio) introduced the **tidyclust** package.
+-   The goal of tidyclust is to provide a tidy, unified interface to clustering models.
+-   Closely modeled after the parsnip package.
+-   Documentation at [emilhvitfeldt.github.io/tidyclust](https://emilhvitfeldt.github.io/tidyclust/).
+-   Example usage:
+
+```{r}
+library(tidyclust)
+kmeans_spec <- 
+  k_means(num_clusters = 3) %>%
+  set_engine("stats") 
+kmeans_spec_fit <- 
+  kmeans_spec %>%
+  fit(~., data = mtcars)
+predict(kmeans_spec_fit, mtcars[1:4, ])
+extract_cluster_assignment(kmeans_spec_fit)
+extract_centroids(kmeans_spec_fit)
+```
+
+## Workboots
+
+Mark Rieke at Memorial Hermann Health System introduced the \*\*workboots\*\* package for generating prediction intervals in the tidymodels ecosystem. Documentation/source: [markjrieke.github.io/workboots](https://markjrieke.github.io/workboots/). Example usage:
+
+::: columns
+::: {.column width="48%"}
+Create a workflow with tidymodels:
+
+```{r}
+library(tidymodels)
+
+data("penguins")
+penguins <- penguins %>% drop_na()
+set.seed(123)
+penguins_split <- initial_split(penguins)
+penguins_test <- testing(penguins_split)
+penguins_train <- training(penguins_split)
+
+penguins_wf <- 
+  workflow() %>%
+  add_recipe(
+    recipe(body_mass_g ~ ., data = penguins_train) %>% 
+           step_dummy(all_nominal())) %>%
+  add_model(boost_tree("regression"))
+```
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column width="48%"}
+Generate predictions from 2000 bootstrap models, and summarize with 95% PI:
+
+```{r}
+library(workboots)
+set.seed(345)
+penguins_pred_int <-
+  penguins_wf %>%
+  predict_boots(
+    n = 2000,
+    training_data = penguins_train,
+    new_data = penguins_test
+  )
+pengins_pred_int %>%
+  summarise_predictions()
+```
+:::
+:::
+
+## GSK
+
+-   Becca Krouse from GSK talked about lessons from pharma on R **package assessment**.
+    -   There are thousands of R packages - how do you go about vetting & choosing which packages to integrate into your workflow?
+
+    -   Things to look for:
+
+        1.  Community -- how active is the development/user community around the package?
+
+        2.  Documentation -- how well documented is the package?
+
+        3.  Tests -- does the package have good built-in tests (`testthat`)?
+
+        4.  Authors/creators -- are creators grad students/postdocs who will abandon the project when it's done? Would you anticipate long-term development and support?
+-   Ellis Hughes discussed driving change and **efficiency within organizations workflows**.
+    -   Uses the officeverse packages (e.g., flextable, officer) to ingest metadata, processed results files generated by upstream applications, etc., and produce formatted reports, usable by non-programming staff.
+
+## UKHSA
+
+-   Isaac Florence from the UK Health Security Agency talked about scaling and **automating R workflows with Kubernetes and Airflow**.
+
+-   UKHSA using RH OpenShift implementation of k8s to deploy containers at whatever scale on whatever hardware available (cloud, laptop, standard HPC, etc).
+
+-   Airflow (also open source) from Apache is a workflow scheduler and monitoring platform aka "fancy cron."
+
+-   At UKHSA, each team has own k8s namespace ("project" in OpenShift), which has defined users, resources, and security.
+
+-   Each Airflow DAG is assigned to a project so teams can have multiple DAGs. Teams can see their own projects and DAGs only in Airflow, aka simplicity/security.
+
+-   Every Airflow task creates a new pod from a container image, specifying a terminal command (eg R script). Specs of images/secrets/credentials/etc all defined in k8s - airflow just tells k8s what pod to run and when.
+
+## Lightning talks
+
+-   George Stagg (RStudio) discussed WebR: **R compiled to webassembly** that runs in the browser. [Source](https://github.com/georgestagg/webR); [Demo](https://webr.gwstagg.co.uk/).
+-   Davis Vaughn (RStudio) talked about the new **clock** package ([clock.r-lib.org](https://clock.r-lib.org/)) as a package for working with date-time data.
+    -   Clock is not replacing lubridate.
+
+    -   Improved safety with time zones, calendars, etc. E.g., `"2022-01-30" + months(1)`
+
+    -   New date types: `year_month_day` to `year_quarter_day` `year_week_day`, etc.
+
+    -   Clock is compatible with the slider package (rolling averages) and ivs (ranges).
+-   Beatriz Milz talked about running R Scripts with **GitHub Actions**. Slides: [beamilz.com/talks/en/2022-rstudio-conf](https://beamilz.com/talks/en/2022-rstudio-conf/).
+-   Tan Ho: GitHub for R package development. Beyond all the normal things, tip for using GitHub releases for large file storage. You can attach up to 2GB files to a release without cluttering git history.
+
+## Talks I missed / FOMO
+
+-   Kelly O'Briant (RStudio): **Remote Content Execution with RStudio Connect and Kubernetes**
+-   Mark Sellors ([R4Pi.org](https://r4pi.org/)): **The worlds smallest R environment? Running R on a \$15 computer**
+-   Andreas Hofheinz (d-fine): **leafdown: Interactive multi-layer maps in Shiny apps** ([slides](https://github.com/rstudio/rstudio-conf/blob/master/2022/andreashofheinz/leafdown_presentation%20-%20Andreas%20H.pdf))
+-   Tanya Cashorali (TCB Analytics): **Cross-Industry Anomaly Detection Solutions with R and Shiny** ([slides](https://docs.google.com/presentation/d/e/2PACX-1vTE7Ee2QIUGDUmfEKmF8l_WTQPVgnGaLJLGuuMquio57bXojeeb5YYSjuzO-xzYxMHxuX2cm_QNC2y-/pub?start=false&loop=false&delayms=60000&slide=id.gbb68c6dbe2_1_44))
+-   E David Aja (Rstudio): You should be using renv ([rstudio.github.io/renv](https://rstudio.github.io/renv))
+-   Aaron Chafetz (USAID): Digging a Pit of Success for Your Organization: Embracing a R-based ecosystem in the US federal government ([slides](https://speakerdeck.com/achafetz/digging-a-pit-of-success-for-your-organization))
+-   Kamil Zyla (Appsilon): **Rhino: Shiny application framework for enterprise** ([appsilon.github.io/rhino](https://appsilon.github.io/rhino/))
+-   Hadley Wickham (RStudio): An introduction to R7 ([rconsortium.github.io/OOP-WG](https://rconsortium.github.io/OOP-WG/))
+-   
