@@ -22,6 +22,8 @@ execute:
   echo: true
 ---
 
+<!-- Render: quarto publish quarto-pub rstudioconf2022.qmd -->
+
 ## Highlights
 
 -   RStudio PBC is now Posit
@@ -94,11 +96,11 @@ tmfit <-
 ## Tidymodels: boosted trees
 
 ::: columns
-::: {.column width="50%"}
+::: {.column width="49%"}
 Set up workflow:
 
 ```{r}
-#| code-line-numbers: "|1-9|11-16|18-22|1-22|1-9|21"
+#| code-line-numbers: "|1-9|11-16|18-22|1-22|1-9|21|"
 # Boosted tree spec 
 xgb_spec <-
   boost_tree(
@@ -125,7 +127,10 @@ xgb_wflow <-
 ```
 :::
 
-::: {.column width="50%"}
+::: {.column width="2%"}
+:::
+
+::: {.column width="49%"}
 Find optimal parameters with cross-validation using a Latin hypercube grid search:
 
 ```{r}
@@ -157,7 +162,7 @@ Copied to the clipboard:
 ```{r}
 #| code-line-numbers: "|1-2|4-7|9-12|14-18"
 ranger_recipe <- 
-  recipe(formula = mpg ~ ., data = mtcars, clipboard = TRUE) 
+  recipe(formula = mpg ~ ., data = mtcars) 
 
 ranger_spec <- 
   rand_forest(mtry = tune(), min_n = tune(), trees = 1000) %>% 
@@ -228,7 +233,7 @@ Copied to the clipboard:
 
 ```{r}
 xgboost_recipe <- 
-  recipe(formula = mpg ~ ., data = mtcars, clipboard = TRUE) %>% 
+  recipe(formula = mpg ~ ., data = mtcars) %>% 
   step_zv(all_predictors()) 
 
 xgboost_spec <- 
@@ -358,8 +363,8 @@ Tidymodels makes this easy:
 graph LR
   Data --> S[Split <br/> Training/testing]
   Predictors --> S
-  subgraph "Model Workflow"
   S --> P[Preprocessing]
+  subgraph "Model Workflow"
   P --> Modeling
   end
   Modeling --> F[Fitted Model]
@@ -444,6 +449,7 @@ graph LR
         -   Annotations (c)
 
         -   [Multiplex](https://quarto.org/docs/presentations/revealjs/presenting.html#multiplex) 🤯
+-   2hr workshop with Tom Mock from 2022-08-09: [youtu.be/yvi5uXQMvu4](https://youtu.be/yvi5uXQMvu4)
 
 # Shiny for Python
 
@@ -489,10 +495,9 @@ URL: [stephenturner.github.io/shinypy-helloworld](https://stephenturner.github.i
 
 Code: [github.com/stephenturner/shinypy-helloworld](https://github.com/stephenturner/shinypy-helloworld){.uri}
 
-``` python
+```{python}
+#| code-line-numbers: "|1-3|5-14|16-24|23|26|"
 from shiny import App, render, ui
-
-# Import modules for plot rendering
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -507,18 +512,15 @@ app_ui = ui.page_fluid(
     ),
 )
 
-
 def server(input, output, session):
     @output
     @render.plot(alt="A histogram")
     def plot():
         np.random.seed(19680801)
         x = 100 + 15 * np.random.randn(437)
-
         fig, ax = plt.subplots()
         ax.hist(x, input.n(), density=True)
         return fig
-
 
 app = App(app_ui, server, debug=True)
 ```
@@ -541,14 +543,14 @@ Chunk options can be written *inside* a code chunk after `#|`, e.g.,
 :::
 
 ::: {.column width="50%"}
-Or using YAML (The `knitr::convert_chunk_header()` can automatically convert old chunk options to the new syntax (requires knitr 1.40).
+Or using YAML. Convert old chunk options in a .Rmd to the new syntax with `knitr::convert_chunk_header()`.
 
     #| echo: false
     #| fig.width: 10
 :::
 :::
 
-## Tidyclust
+## tidyclust 📦
 
 -   Emil Hvitfeldt (RStudio) introduced the **tidyclust** package.
 -   The goal of tidyclust is to provide a tidy, unified interface to clustering models.
@@ -569,7 +571,7 @@ extract_cluster_assignment(kmeans_spec_fit)
 extract_centroids(kmeans_spec_fit)
 ```
 
-## Workboots
+## Workboots 📦
 
 Mark Rieke at Memorial Hermann Health System introduced the \*\*workboots\*\* package for generating prediction intervals in the tidymodels ecosystem. Documentation/source: [markjrieke.github.io/workboots](https://markjrieke.github.io/workboots/). Example usage:
 
@@ -663,7 +665,7 @@ pengins_pred_int %>%
 -   Beatriz Milz talked about running R Scripts with **GitHub Actions**. Slides: [beamilz.com/talks/en/2022-rstudio-conf](https://beamilz.com/talks/en/2022-rstudio-conf/).
 -   Tan Ho: GitHub for R package development. Beyond all the normal things, tip for using GitHub releases for large file storage. You can attach up to 2GB files to a release without cluttering git history.
 
-## Talks I missed / FOMO
+## Talks I missed
 
 -   Kelly O'Briant (RStudio): **Remote Content Execution with RStudio Connect and Kubernetes**
 -   Mark Sellors ([R4Pi.org](https://r4pi.org/)): **The worlds smallest R environment? Running R on a \$15 computer**
@@ -673,3 +675,18 @@ pengins_pred_int %>%
 -   Aaron Chafetz (USAID): Digging a Pit of Success for Your Organization: Embracing a R-based ecosystem in the US federal government ([slides](https://speakerdeck.com/achafetz/digging-a-pit-of-success-for-your-organization))
 -   Kamil Zyla (Appsilon): **Rhino: Shiny application framework for enterprise** ([appsilon.github.io/rhino](https://appsilon.github.io/rhino/))
 -   Hadley Wickham (RStudio): **An introduction to R7** ([rconsortium.github.io/OOP-WG](https://rconsortium.github.io/OOP-WG/))
+
+## R/Med 2022: August 23-26 (virtual)
+
+-   Registration (\$50): [events.linuxfoundation.org/r-medicine](https://events.linuxfoundation.org/r-medicine/)
+-   Workshops:
+    1.  Building dashboards with Shiny
+    2.  Gene expression analysis with R
+    3.  Geospatial data analysis and visualization
+    4.  Reproducible Research with Quarto
+    5.  Tabulating biomedical data with gtsummary
+    6.  Enterprise-grade Shiny App Development with rhino
+    7.  Using Public Data and Maps for Powerful Data Visualization
+    8.  Introduction to R for medical data
+-   Keynotes: JJ Allaire, Frank Harrell
+-   Much more ([link to schedule](https://events.linuxfoundation.org/r-medicine/program/schedule/))
