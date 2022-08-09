@@ -1,4 +1,4 @@
 - source: rstudioconf2022.qmd
   quarto-pub:
     - id: fd1c3ab9-1203-4660-9e1f-dc37ff70e2dd
-      url: 'https://quartopub.org/sites/strnr/rstudioconf2022'
+      url: 'https://quartopub.com/sites/strnr/rstudioconf2022'
