@@ -20,9 +20,8 @@ editor: visual
 execute: 
   eval: false
   echo: true
+# To publish: quarto publish quarto-pub rstudioconf2022.qmd
 ---
-
-<!-- Render: quarto publish quarto-pub rstudioconf2022.qmd -->
 
 ## Highlights
 
