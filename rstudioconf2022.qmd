@@ -433,22 +433,18 @@ graph LR
 
 ## What is Quarto?
 
--   A `.qmd` is a plain text file
--   Regular Rmarkdown mostly "just works"
+-   A `.qmd` is a plain text file. Regular Rmarkdown mostly "just works"
 -   Chunk options are YAML using the hashpipe (e.g., `#| echo: false`)
 -   One document, many formats
--   This slideshow:
+-   This slideshow (revealjs):
     -   Rendered: [strnr.quarto.pub/rstudioconf2022](https://strnr.quarto.pub/rstudioconf2022)
     -   Source: [github.com/stephenturner/rstudioconf2022](https://github.com/stephenturner/rstudioconf2022)
-    -   Demo:
-        -   Outline (o)
-
-        -   Blackboard (b)
-
-        -   Annotations (c)
-
-        -   [Multiplex](https://quarto.org/docs/presentations/revealjs/presenting.html#multiplex) 🤯
--   2hr workshop with Tom Mock from 2022-08-09: [youtu.be/yvi5uXQMvu4](https://youtu.be/yvi5uXQMvu4)
+-   Demo:
+    -   Outline (o)
+    -   Blackboard (b)
+    -   Annotations (c)
+    -   [Multiplex](https://quarto.org/docs/presentations/revealjs/presenting.html#multiplex) 🤯
+- 2hr workshop with Tom Mock from 2022-08-09: [youtu.be/yvi5uXQMvu4](https://youtu.be/yvi5uXQMvu4)
 
 # Shiny for Python
 
