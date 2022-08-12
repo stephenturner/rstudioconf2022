@@ -444,7 +444,7 @@ graph LR
     -   Blackboard (b)
     -   Annotations (c)
     -   [Multiplex](https://quarto.org/docs/presentations/revealjs/presenting.html#multiplex) 🤯
-- 2hr workshop with Tom Mock from 2022-08-09: [youtu.be/yvi5uXQMvu4](https://youtu.be/yvi5uXQMvu4)
+-   2hr workshop with Tom Mock from 2022-08-09: [youtu.be/yvi5uXQMvu4](https://youtu.be/yvi5uXQMvu4)
 
 # Shiny for Python
 
